@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Library
 {
-
-    public class Team: IObserver
+    public class Team
     {
         public TeamCaptain Captain;
         public List<Player> TeamMembers;
@@ -19,7 +19,7 @@ namespace Library
             TeamMembers = players;
             Name = name;
             Rating = 0;
-            _oracle = new Oracle();
+            _oracle = Container.Resolve<IOracle>();
         }
 
         public void ChooseCaptain()
@@ -48,9 +48,14 @@ namespace Library
 
         }
 
-        public void Update(Game game)
+        public void ApplyForParticipation(Game game)
         {
-            //
+            game.Teams.Add(this);
+        }
+
+        public void OnNewGameAvailable(Game game)
+        {
+            Debug.Write(game.Name);
         }
     }
 

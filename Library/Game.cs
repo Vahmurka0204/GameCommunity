@@ -15,6 +15,8 @@ namespace Library
             Name = name;
             Date = date;
             NumberOfQuestions = number;
+            Results = new Dictionary<Team, int>();
+            Teams = new List<Team>();
         }
     }
 

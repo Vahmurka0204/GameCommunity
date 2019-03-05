@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Tests
 {
     [TestClass]
-    public class GamesCommunityTests
+    public class TeamTests
     {
         [TestMethod]
         public void AddPlayer()
@@ -17,6 +17,7 @@ namespace Tests
             var player3 = new Player("c");
             var player4 = new Player("d");
             var players = new List<Player> { player1, player2, player3 };
+            Container.Register<IOracle, TestOracle>();
             var dreamTeam = new Team(players, "DreamTeam");
 
             dreamTeam.AddPlayer(player4);
@@ -37,6 +38,21 @@ namespace Tests
             dreamTeam.ChooseCaptain();
 
             Assert.AreEqual("a", dreamTeam.Captain.Name);
+        }
+
+        [TestMethod]
+        public void ChooseCaptainTwoTimes()
+        {
+            var player1 = new Player("a");
+            var player2 = new Player("b");
+            Container.Register<IOracle, TestOracle>();
+            var team = new Team(new List<Player> { player1 }, "TestTeam");
+
+            team.ChooseCaptain();
+            team.AddPlayer(player2);
+            team.ChooseCaptain();
+
+            Assert.AreEqual("b", team.Captain.Name);
         }
     }
 }
