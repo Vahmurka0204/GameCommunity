@@ -22,20 +22,22 @@ namespace Library
     public class TestOracle: IOracle
     {
         int next;
-        public TestOracle()
+        private int[] numbers;
+        public TestOracle(int[] array)
         {
+            numbers = array;
             next = 0;
         }
         public int MakeChoice(int min, int max)
         {
             int choice;
 
-            if (next > max)
+            if (next >= numbers.Length)
             {
                 next = 0;
             }
                 
-            choice = next;
+            choice = numbers[next];
             next++;
                       
             return choice;

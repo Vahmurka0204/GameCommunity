@@ -8,11 +8,14 @@ namespace Intellectual_Games_Community
     {
         static void Main(string[] args)
         {
-            Container.Register<IOracle, Oracle>();
+            Container.Register<IOracle>(new TestOracle(new int[]{ 0 }));
             Player p = new Player("a");
             var team = new Team(new List<Player> { p }, "T");
+
+            
             Console.ReadKey();
-           
+
+
         }
 
     }

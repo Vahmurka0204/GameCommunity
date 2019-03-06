@@ -17,7 +17,7 @@ namespace Tests
             var player3 = new Player("c");
             var player4 = new Player("d");
             var players = new List<Player> { player1, player2, player3 };
-            Container.Register<IOracle, TestOracle>();
+            Container.Register<IOracle>(new TestOracle(new int[] { 0 }));
             var dreamTeam = new Team(players, "DreamTeam");
 
             dreamTeam.AddPlayer(player4);
@@ -32,9 +32,10 @@ namespace Tests
             var player2 = new Player("b");
             var player3 = new Player("c");
             var players = new List<Player> { player1, player2, player3 };
+            var oracle = new TestOracle(new int[] { 0, 0, 1 });
+            Container.Register<IOracle>(oracle);
             var dreamTeam = new Team(players, "DreamTeam");
-
-            dreamTeam.ChangeOracle(new TestOracle());
+            
             dreamTeam.ChooseCaptain();
 
             Assert.AreEqual("a", dreamTeam.Captain.Name);
@@ -45,14 +46,14 @@ namespace Tests
         {
             var player1 = new Player("a");
             var player2 = new Player("b");
-            Container.Register<IOracle, TestOracle>();
+            Container.Register<IOracle>(new TestOracle(new int[] { 0 }));
             var team = new Team(new List<Player> { player1 }, "TestTeam");
 
             team.ChooseCaptain();
             team.AddPlayer(player2);
             team.ChooseCaptain();
 
-            Assert.AreEqual("b", team.Captain.Name);
+            Assert.AreEqual("a", team.Captain.Name);
         }
     }
 }
