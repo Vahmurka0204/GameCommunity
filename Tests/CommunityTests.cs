@@ -12,7 +12,7 @@ namespace Tests
         public void AddPlayer()
         {
             var player = new Player("a");
-            Container.Register<IOracle>(new TestOracle(new int[] { 0 }));
+            Container.Register<IOracle, TestOracle>(new TestOracle(new int[] { 0 }));
             Team team = new Team(new List<Player> {player}, "TestTeam");
             var community = new Community();
 
@@ -26,7 +26,7 @@ namespace Tests
         public void ConductGame()
         {
             var player = new Player("a");
-            Container.Register<IOracle>(new TestOracle(new int[] { 0 }));
+            Container.Register<IOracle, Oracle>();
             var team = new Team(new List<Player> { player }, "TestTeam");
             var community = new Community();
 
