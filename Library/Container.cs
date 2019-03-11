@@ -9,22 +9,29 @@ namespace Library
     public static class Container
     {
         private static  Dictionary<Type, Type> _dictionaryOfTypes;
-        private static Dictionary<Type, dynamic> _dictionaryTypeParameter;
+        private static Dictionary<Type, object> _dictionaryTypeParameter;
+        private static Dictionary<Type, object> _dictionarySingltone;
 
         static Container()
         {
             _dictionaryOfTypes = new Dictionary<Type, Type>();
-            _dictionaryTypeParameter = new Dictionary<Type, dynamic>();
+            _dictionaryTypeParameter = new Dictionary<Type, object>();
+            _dictionarySingltone = new Dictionary<Type, object>();
         }
 
         public static TKey Resolve<TKey>()
         {
-            if (_dictionaryOfTypes.ContainsKey(typeof(TKey))==true)
+            if (_dictionarySingltone.ContainsKey(typeof(TKey)) == false)
             {
-                return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)]);
+                if (_dictionaryOfTypes.ContainsKey(typeof(TKey)) == true)
+                {
+                    _dictionarySingltone[typeof(TKey)] = Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)]);
+                }
+                else
+                    _dictionarySingltone[typeof(TKey)] = _dictionaryTypeParameter[typeof(TKey)];
+
             }
-            else
-            return _dictionaryTypeParameter[typeof(TKey)];
+            return (TKey)_dictionarySingltone[typeof(TKey)];
         }
                 
         public  static void Register<TKey, TValue>(TValue t)
