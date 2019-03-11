@@ -25,10 +25,12 @@ namespace Library
             {
                 if (_dictionaryOfTypes.ContainsKey(typeof(TKey)) == true)
                 {
-                    _dictionarySingltone[typeof(TKey)] = Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)]);
+                    return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)]);
                 }
-                else
-                    _dictionarySingltone[typeof(TKey)] = _dictionaryTypeParameter[typeof(TKey)];
+                else if (_dictionaryTypeParameter.ContainsKey(typeof(TKey)) == true)
+                {
+                    return (TKey)_dictionaryTypeParameter[typeof(TKey)];
+                }
 
             }
             return (TKey)_dictionarySingltone[typeof(TKey)];
@@ -44,6 +46,16 @@ namespace Library
         {
 
             _dictionaryOfTypes[typeof(TKey)] =typeof(TValue);
+        }
+
+        public static void RegisterSingltone<TKey, TValue>()
+        {
+            _dictionarySingltone[typeof(TKey)] = (TKey)Activator.CreateInstance(typeof(TValue));
+        }
+
+        public static void RegisterSingltone<TKey,TValue>(TValue t)
+        {
+            _dictionarySingltone[typeof(TKey)] = t;
         }
 
     }

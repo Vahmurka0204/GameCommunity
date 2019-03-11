@@ -17,7 +17,7 @@ namespace Tests
             var player3 = new Player("c");
             var player4 = new Player("d");
             var players = new List<Player> { player1, player2, player3 };
-            Container.Register<IOracle, TestOracle>(new TestOracle(new int[] { 0 }));
+            Container.RegisterSingltone<IOracle, Oracle>();
             var dreamTeam = new Team(players, "DreamTeam");
 
             dreamTeam.AddPlayer(player4);
@@ -32,7 +32,7 @@ namespace Tests
             var player2 = new Player("b");
             var player3 = new Player("c");
             var players = new List<Player> { player1, player2, player3 };
-            var oracle = new TestOracle(new int[] { 0, 0, 1 });
+            var oracle = new TestOracle(new int[] { 0});
             Container.Register<IOracle, TestOracle>(oracle);
             var dreamTeam = new Team(players, "DreamTeam");
             
@@ -46,7 +46,7 @@ namespace Tests
         {
             var player1 = new Player("a");
             var player2 = new Player("b");
-            Container.Register<IOracle, TestOracle>(new TestOracle(new int[] { 0 }));
+            Container.RegisterSingltone<IOracle, TestOracle>(new TestOracle(new int[] { 0 }));
             var team = new Team(new List<Player> { player1 }, "TestTeam");
 
             team.ChooseCaptain();
