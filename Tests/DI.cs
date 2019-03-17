@@ -28,8 +28,5 @@ namespace Tests
 
     }
 
-    class DI
-    {
-        ConstructorInfo f = g;
-    }
+   
 }

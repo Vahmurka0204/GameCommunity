@@ -9,20 +9,18 @@ namespace Intellectual_Games_Community
     {
         static void Main(string[] args)
         {
-            /* Container.Register<IOracle, TestOracle>(new TestOracle(new int[]{ 0 }));
-             Player p = new Player("a");
-             var team = new Team(new List<Player> { p }, "T");*/
-            ConstructorInfo[] info = typeof(B).GetConstructors();
-            ParameterInfo[] param = info[0].GetParameters();
-            if (param==null)
-                Console.WriteLine(param[0].ToString());
-            else Console.Write("empty constructor");
+            var castMethod = typeof(Container).GetMethod("Cast").MakeGenericMethod(typeof(IB));
+            object castedValue = castMethod.Invoke(null, new object[] { new B() });
 
+            Container.Register<IA, A>();
+            Container.Register<IB, B>();
+            Container.Resolve<IA>();
             
             Console.ReadKey();
 
 
         }
+
         public interface IA
         {
 
