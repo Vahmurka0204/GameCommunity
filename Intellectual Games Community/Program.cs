@@ -9,8 +9,11 @@ namespace Intellectual_Games_Community
     {
         static void Main(string[] args)
         {
-            var castMethod = typeof(Container).GetMethod("Cast").MakeGenericMethod(typeof(IB));
-            object castedValue = castMethod.Invoke(null, new object[] { new B() });
+            //var b = new B();
+            //IB ib = Container.Cast<IB>(b);
+
+            //var castMethod = typeof(Container).GetMethod("Cast").MakeGenericMethod(typeof(IB));
+            //object castedValue = castMethod.Invoke(null, new object[] { new B() });
 
             Container.Register<IA, A>();
             Container.Register<IB, B>();
@@ -28,7 +31,7 @@ namespace Intellectual_Games_Community
 
         public interface IB
         {
-
+            int MyProperty { get; set; }
         }
 
         public class A : IA
@@ -39,7 +42,7 @@ namespace Intellectual_Games_Community
 
         public class B : IB
         {
-
+            public int MyProperty { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         }
 
     }

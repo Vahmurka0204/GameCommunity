@@ -17,6 +17,11 @@ namespace Tests
 
     }
 
+    public interface IC
+    {
+
+    }
+
     public class A: IA
     {
     public A(IB b) { }
@@ -25,8 +30,16 @@ namespace Tests
 
     public class B: IB
     {
-
+        
     }
 
-   
+   public class C: IC
+    {
+        public C( string c) { }
+    }
+
+    public class D: IC
+    {
+        public D(IA a, int d) { }
+    }
 }

@@ -33,6 +33,16 @@ namespace Library
 
         public static TKey Resolve<TKey>()
         {
+            if (_dictionarySingltone.ContainsKey(typeof(TKey)))
+            {
+                return (TKey)_dictionarySingltone[typeof(TKey)];
+            }
+
+            if(_dictionaryTypeParameter.ContainsKey(typeof(TKey)))
+            {
+                return (TKey)_dictionaryTypeParameter[typeof(TKey)];
+            }
+
             if (!_dictionaryOfTypes.ContainsKey(typeof(TKey)))
             {
                 return default(TKey);
@@ -63,48 +73,89 @@ namespace Library
 
                         parameters.Add(castedValue);
                     }
+                    else
+                        if (p.ParameterType.IsInterface)
+                    {
+                        throw new Exception("Register this interface: " + p.ParameterType);
+                    }
+                    else
+                    {
+                        throw new Exception("This dependency cannot be resolved");
+                    }
                 }
 
-                return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)], parameters);
+                return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)], parameters.ToArray());
             }
 
-            if (!_dictionarySingltone.ContainsKey(typeof(TKey)))
+            if (_dictionaryOfTypes.ContainsKey(typeof(TKey)))
             {
-                if (_dictionaryOfTypes.ContainsKey(typeof(TKey)))
-                {
-                    return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)]);
-                }
-                else if (_dictionaryTypeParameter.ContainsKey(typeof(TKey)))
-                {
-                    return (TKey)_dictionaryTypeParameter[typeof(TKey)];
-                }
+                return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)]);
             }
-
-            return (TKey)_dictionarySingltone[typeof(TKey)];
+                
+            
+            return default(TKey);
         }
 
         public static void Register<TKey, TValue>(TValue t) where TValue: TKey
         {
+            if(!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
+            {
+                throw new Exception("Try another pair to register");
+            }
+            RemoveOldPairs<TKey>();
             _allKeys.Add(typeof(TKey));
             _dictionaryTypeParameter[typeof(TKey)] = t;
         }
 
         public static void Register<TKey, TValue>() where TValue : TKey
         {
+            if (!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
+            {
+                throw new Exception("Try another pair to register");
+            }
+            RemoveOldPairs<TKey>();
             _allKeys.Add(typeof(TKey));
             _dictionaryOfTypes[typeof(TKey)] = typeof(TValue);
         }
 
         public static void RegisterSingltone<TKey, TValue>() where TValue : TKey
         {
+            if (!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
+            {
+                throw new Exception("Try another pair to register");
+            }
+            RemoveOldPairs<TKey>();
             _dictionarySingltone[typeof(TKey)] = (TKey)Activator.CreateInstance(typeof(TValue));
             _allKeys.Add(typeof(TKey));
         }
 
         public static void RegisterSingltone<TKey, TValue>(TValue t) where TValue : TKey
         {
+            if (!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
+            {
+                throw new Exception("Try another pair to register");
+            }
+            RemoveOldPairs<TKey>();
             _dictionarySingltone[typeof(TKey)] = t;
             _allKeys.Add(typeof(TKey));
+        }
+
+        private static void RemoveOldPairs<TKey>()
+        {
+            if (_dictionaryOfTypes.ContainsKey(typeof(TKey)))
+            {
+                _dictionaryOfTypes.Remove(typeof(TKey));
+            }
+
+            if (_dictionarySingltone.ContainsKey(typeof(TKey)))
+            {
+                _dictionarySingltone.Remove(typeof(TKey));
+            }
+
+            if (_dictionaryTypeParameter.ContainsKey(typeof(TKey)))
+            {
+                _dictionaryTypeParameter.Remove(typeof(TKey));
+            }
         }
     }
 }
