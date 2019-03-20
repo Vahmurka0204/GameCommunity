@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace Library
@@ -22,9 +19,16 @@ namespace Library
             _allKeys = new HashSet<Type>();
         }
 
+        public static void Clean()
+        {
+            _dictionaryOfTypes.Clear();
+            _dictionarySingltone.Clear();
+            _dictionaryTypeParameter.Clear();
+            _allKeys.Clear();
+        }
+
         public static T Cast<T>(object o)
         {
-            //T result = o as T;
             T result = (T)o;
             var t = typeof(T);
 
@@ -76,11 +80,11 @@ namespace Library
                     else
                         if (p.ParameterType.IsInterface)
                     {
-                        throw new Exception("Register this interface: " + p.ParameterType);
+                        throw new ContainerException("Register this interface: " + p.ParameterType);
                     }
                     else
                     {
-                        throw new Exception("This dependency cannot be resolved");
+                        throw new ContainerException("This dependency cannot be resolved");
                     }
                 }
 
@@ -92,7 +96,6 @@ namespace Library
                 return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)]);
             }
                 
-            
             return default(TKey);
         }
 
@@ -100,8 +103,9 @@ namespace Library
         {
             if(!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
             {
-                throw new Exception("Try another pair to register");
+                throw new ContainerException("Try another pair to register");
             }
+
             RemoveOldPairs<TKey>();
             _allKeys.Add(typeof(TKey));
             _dictionaryTypeParameter[typeof(TKey)] = t;
@@ -111,8 +115,9 @@ namespace Library
         {
             if (!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
             {
-                throw new Exception("Try another pair to register");
+                throw new ContainerException("Try another pair to register");
             }
+
             RemoveOldPairs<TKey>();
             _allKeys.Add(typeof(TKey));
             _dictionaryOfTypes[typeof(TKey)] = typeof(TValue);
@@ -122,8 +127,9 @@ namespace Library
         {
             if (!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
             {
-                throw new Exception("Try another pair to register");
+                throw new ContainerException("Try another pair to register");
             }
+
             RemoveOldPairs<TKey>();
             _dictionarySingltone[typeof(TKey)] = (TKey)Activator.CreateInstance(typeof(TValue));
             _allKeys.Add(typeof(TKey));
@@ -133,8 +139,9 @@ namespace Library
         {
             if (!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
             {
-                throw new Exception("Try another pair to register");
+                throw new ContainerException("Try another pair to register");
             }
+
             RemoveOldPairs<TKey>();
             _dictionarySingltone[typeof(TKey)] = t;
             _allKeys.Add(typeof(TKey));

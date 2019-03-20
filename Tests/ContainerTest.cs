@@ -1,17 +1,20 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Library;
 
 
 namespace Tests
 {
-    
     [TestClass]
     public class ContainerTest
     {
+        [TestCleanup]
+        public void TestCleanUp()
+        {
+            Container.Clean();
+        }
         [TestMethod]
+        [ExpectedException(typeof(ContainerException))]
         public void NeedRegisterAnotherPairFoResolve()
         {
             Container.Register<IA, A>();
@@ -52,6 +55,7 @@ namespace Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ContainerException))]
         public void AnotherTypeInConstructor()
         {
             Container.Register<IC, C>();
@@ -59,6 +63,7 @@ namespace Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ContainerException))]
         public void ConstructorInterfaceInt()
         {
             Container.Register<IC, D>();
@@ -66,10 +71,48 @@ namespace Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ContainerException))]
         public void RegisterWrongPair()
         {
-            Container.Register<int,int>();
+            Container.Register<int, int>();
             var c = Container.Resolve<int>();
         }
+
+        [TestMethod]
+        public void CreateSingltone()
+        {
+            Container.RegisterSingltone<IB, B>();
+            var b1 = Container.Resolve<IB>();
+            var b2 = Container.Resolve<IB>();
+            Assert.AreSame(b1, b2);
+        }
+
+        [TestMethod]
+        public void DifferentLinks()
+        {
+            Container.Register<IB, B>();
+            var b1 = Container.Resolve<IB>();
+            var b2 = Container.Resolve<IB>();
+            Assert.AreNotEqual(b1, b2);
+        }
+
+        [TestMethod]
+        public void CreateParameter()
+        {
+            var b = new B();
+            Container.Register<IB, B>(b);
+            var b1 = Container.Resolve<IB>();
+            Assert.AreSame(b, b1);
+        }
+
+        [TestMethod]
+        public void CreateSingltoneParameter()
+        {
+            var b = new B();
+            Container.RegisterSingltone<IB, B>(b);
+            var b1 = Container.Resolve<IB>();
+            Assert.AreSame(b, b1);
+        }
+
     }
 }
