@@ -93,7 +93,7 @@ namespace Tests
             Container.Register<IB, B>();
             var b1 = Container.Resolve<IB>();
             var b2 = Container.Resolve<IB>();
-            Assert.AreNotEqual(b1, b2);
+            Assert.AreNotSame(b1, b2);
         }
 
         [TestMethod]
@@ -105,14 +105,6 @@ namespace Tests
             Assert.AreSame(b, b1);
         }
 
-        [TestMethod]
-        public void CreateSingltoneParameter()
-        {
-            var b = new B();
-            Container.RegisterSingltone<IB, B>(b);
-            var b1 = Container.Resolve<IB>();
-            Assert.AreSame(b, b1);
-        }
-
+       
     }
 }

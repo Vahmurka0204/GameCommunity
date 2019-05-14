@@ -37,6 +37,11 @@ namespace Library
 
         public static TKey Resolve<TKey>()
         {
+            if (!_allKeys.Contains(typeof(TKey)))
+            {
+                throw new ContainerException("Register this type: " + typeof(TKey));
+            }
+
             if (_dictionarySingltone.ContainsKey(typeof(TKey)))
             {
                 return (TKey)_dictionarySingltone[typeof(TKey)];
@@ -54,43 +59,28 @@ namespace Library
 
             ConstructorInfo[] ctorInfo = _dictionaryOfTypes[typeof(TKey)].GetConstructors();
 
-            foreach (ConstructorInfo c in ctorInfo)
+            if (!HasEmptyConstructor(ctorInfo))
             {
-                ParameterInfo[] parameterInfo = c.GetParameters();
-
-                if (parameterInfo.Length == 0)
+                var suitableConstructor = FindSuitableConstructor(ctorInfo, typeof(TKey));
+                if (suitableConstructor == null)
                 {
-                    break;
+                    throw new ContainerException("Cannot resolve");
                 }
-
+                ParameterInfo[] parameterInfo = suitableConstructor.GetParameters();
                 var parameters = new List<object>(parameterInfo.Length);
 
                 foreach (ParameterInfo p in parameterInfo)
                 {
-                    if (_allKeys.Contains(p.ParameterType))
-                    {
-                        var resolveMethod = typeof(Container).GetMethod("Resolve").MakeGenericMethod(p.ParameterType);
-                        object returnValue = resolveMethod.Invoke(null, null);
-
-                        var castMethod = typeof(Container).GetMethod("Cast").MakeGenericMethod(p.ParameterType);
-                        object castedValue = castMethod.Invoke(null, new object[] { returnValue });
-
-                        parameters.Add(castedValue);
-                    }
-                    else
-                        if (p.ParameterType.IsInterface)
-                    {
-                        throw new ContainerException("Register this interface: " + p.ParameterType);
-                    }
-                    else
-                    {
-                        throw new ContainerException("This dependency cannot be resolved");
-                    }
+                    var resolveMethod = typeof(Container).GetMethod("Resolve").MakeGenericMethod(p.ParameterType);
+                    object returnValue = resolveMethod.Invoke(null, null);
+                    var castMethod = typeof(Container).GetMethod("Cast").MakeGenericMethod(p.ParameterType);
+                    object castedValue = castMethod.Invoke(null, new object[] { returnValue });
+                    parameters.Add(castedValue);
                 }
 
                 return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)], parameters.ToArray());
             }
-
+           
             if (_dictionaryOfTypes.ContainsKey(typeof(TKey)))
             {
                 return (TKey)Activator.CreateInstance(_dictionaryOfTypes[typeof(TKey)]);
@@ -135,7 +125,7 @@ namespace Library
             _allKeys.Add(typeof(TKey));
         }
 
-        public static void RegisterSingltone<TKey, TValue>(TValue t) where TValue : TKey
+       /* public static void RegisterSingltone<TKey, TValue>(TValue t) where TValue : TKey
         {
             if (!typeof(TKey).IsInterface || !typeof(TValue).IsClass)
             {
@@ -145,6 +135,91 @@ namespace Library
             RemoveOldPairs<TKey>();
             _dictionarySingltone[typeof(TKey)] = t;
             _allKeys.Add(typeof(TKey));
+        }*/
+
+        private static bool HasEmptyConstructor(ConstructorInfo[] _ctorInfo)
+        {
+            foreach (ConstructorInfo c in _ctorInfo)
+            {
+                ParameterInfo[] parameterInfo = c.GetParameters();
+
+                if (parameterInfo.Length == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static ConstructorInfo FindSuitableConstructor(ConstructorInfo[] _ctorInfo, Type type)
+        {
+            foreach (ConstructorInfo c in _ctorInfo)
+            {
+                ParameterInfo[] parameterInfo = c.GetParameters();
+                var parameters = new List<object>(parameterInfo.Length);//delete
+                bool flag = true;
+                foreach (ParameterInfo p in parameterInfo)
+                {
+                    if (!_allKeys.Contains(p.ParameterType) || HasCycle(p.ParameterType, type))
+                    {
+                        flag = false;
+                        //break;
+                    }
+                }
+                if(flag)
+                {
+                    return c;
+                }
+                
+            }
+
+            return null;
+        }
+
+        private static bool HasCycle(Type t, Type firstType)
+        {
+            HashSet<Type> setTypes = new HashSet<Type>();
+            bool flag=false;
+            hasCycle(t, setTypes, flag, firstType);
+            return flag;
+        }
+
+        private static void hasCycle(Type t, HashSet<Type> setTypes, bool flag, Type firstType)
+        {
+            if (setTypes.Contains(t) || t == firstType)
+            {
+                flag = true;
+                return;
+            }
+            setTypes.Add(t);
+            //
+            ConstructorInfo[] ctorInfo = t.GetConstructors();//
+            //
+            if (!HasEmptyConstructor(ctorInfo))
+            {
+                foreach (ConstructorInfo ctor in ctorInfo)
+                {
+                    ParameterInfo[] parameterInfo = ctor.GetParameters();
+
+                    foreach (ParameterInfo p in parameterInfo)
+                    {
+                        if (_allKeys.Contains(p.ParameterType))
+                        {
+                            hasCycle(p.ParameterType, setTypes, flag, firstType);
+                        }
+                        else
+                        {
+                            /* setTypes.Clear();
+                             break;*/
+                            flag = true;
+                            return;
+                        }
+                    }
+                }
+
+            }
+            else return;
         }
 
         private static void RemoveOldPairs<TKey>()

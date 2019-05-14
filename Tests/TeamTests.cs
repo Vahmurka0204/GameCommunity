@@ -46,7 +46,7 @@ namespace Tests
         {
             var player1 = new Player("a");
             var player2 = new Player("b");
-            Container.RegisterSingltone<IOracle, TestOracle>(new TestOracle(new int[] { 0 }));
+            Container.Register<IOracle, TestOracle>(new TestOracle(new int[] { 0 }));
             var team = new Team(new List<Player> { player1 }, "TestTeam");
 
             team.ChooseCaptain();
